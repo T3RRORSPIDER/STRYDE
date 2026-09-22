@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>STRYDE — Built for Distance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #EEECE6; --text: #0F0E0C; --muted: #7A7772;
+      --accent: #1B5FE8; --surface: #DEDAD2;
+      --dark-bg: #0F0E0C; --dark-text: #EEECE6;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; overflow-x: hidden; }
+
+    /* ── NAV ── */
+    nav {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1.1rem 2.5rem; border-bottom: 1px solid var(--surface);
+      position: sticky; top: 0; background: var(--bg); z-index: 200;
+    }
+    .nav-brand { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.05rem; letter-spacing: .08em; color: var(--text); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+    .nav-logo { flex-shrink: 0; }
+    .nav-links { display: flex; gap: 1.75rem; list-style: none; align-items: center; }
+    .nav-links a { font-size: .875rem; color: var(--muted); text-decoration: none; font-weight: 500; transition: color .2s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--text); }
+    .nav-icon-btn { background: none; border: none; cursor: pointer; color: var(--muted); display: flex; align-items: center; padding: .25rem; transition: color .2s; }
+    .nav-icon-btn:hover { color: var(--text); }
+    .btn-primary { background: var(--text); color: var(--bg); padding: .75rem 1.75rem; font-family: 'DM Sans', sans-serif; font-size: .875rem; font-weight: 500; border: none; cursor: pointer; text-decoration: none; display: inline-block; transition: background .2s; }
+    .btn-primary:hover { background: var(--accent); }
+    .btn-ghost { font-size: .875rem; color: var(--muted); text-decoration: none; font-weight: 500; border-bottom: 1px solid currentColor; padding-bottom: 1px; transition: color .2s; background: none; border-top: none; border-left: none; border-right: none; cursor: pointer; }
+    .btn-ghost:hover { color: var(--text); }
+    .nav-signup { background: var(--accent); color: #fff !important; padding: .5rem 1.25rem; border-radius: 0; transition: background .2s !important; }
+    .nav-signup:hover { background: #1449C0 !important; color: #fff !important; }
+
+    /* ── SEARCH OVERLAY ── */
+    .search-overlay {
+      position: fixed; inset: 0; background: rgba(15,14,12,.95); z-index: 500;
+      display: flex; flex-direction: column; align-items: center; padding-top: 8rem;
+      opacity: 0; pointer-events: none; transition: opacity .25s;
+    }
+    .search-overlay.open { opacity: 1; pointer-events: all; }
+    .search-box { width: min(640px, 90vw); position: relative; }
+    .search-input {
+      width: 100%; padding: 1.1rem 3.5rem 1.1rem 1.25rem; font-family: 'DM Sans', sans-serif;
+      font-size: 1.125rem; background: #1A1918; color: #EEECE6; border: 1px solid #2A2825;
+      outline: none; transition: border-color .2s;
+    }
+    .search-input:focus { border-color: var(--accent); }
+    .search-input::placeholder { color: #4A4845; }
+    .search-close { position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: #6A6865; cursor: pointer; font-size: 1.25rem; }
+    .search-tags { display: flex; gap: .75rem; flex-wrap: wrap; margin-top: 1.5rem; }
+    .search-tag { font-size: .8125rem; color: #6A6865; padding: .4rem .9rem; border: 1px solid #2A2825; cursor: pointer; transition: border-color .2s, color .2s; background: none; font-family: 'DM Sans', sans-serif; }
+    .search-tag:hover { border-color: var(--accent); color: #EEECE6; }
+    .search-esc { margin-top: 2rem; font-size: .8125rem; color: #3A3835; }
+
+    /* ── ACCOUNT MODAL ── */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(15,14,12,.7); z-index: 400;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity .25s;
+    }
+    .modal-backdrop.open { opacity: 1; pointer-events: all; }
+    .modal {
+      background: var(--bg); width: min(440px, 92vw); padding: 2.5rem;
+      transform: translateY(20px); transition: transform .25s;
+    }
+    .modal-backdrop.open .modal { transform: translateY(0); }
+    .modal-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.5rem; margin-bottom: .5rem; }
+    .modal-sub { font-size: .875rem; color: var(--muted); margin-bottom: 2rem; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-label { display: block; font-size: .8125rem; font-weight: 500; margin-bottom: .5rem; }
+    .form-input { width: 100%; padding: .75rem 1rem; font-family: 'DM Sans', sans-serif; font-size: .9rem; background: #E4E1DA; border: 1px solid transparent; outline: none; transition: border-color .2s; }
+    .form-input:focus { border-color: var(--accent); }
+    .modal-actions { display: flex; gap: 1rem; align-items: center; margin-top: 1.75rem; }
+    .modal-close-link { font-size: .8125rem; color: var(--muted); cursor: pointer; text-decoration: underline; background: none; border: none; font-family: 'DM Sans', sans-serif; }
+    .modal-success { text-align: center; padding: 1rem 0; }
+    .modal-success-icon { font-size: 3rem; margin-bottom: 1rem; }
+    .modal-success h3 { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.25rem; margin-bottom: .5rem; }
+    .modal-success p { font-size: .875rem; color: var(--muted); }
+
+    /* ── HERO ── */
+    .hero { min-height: 90vh; display: grid; grid-template-columns: 1fr 1fr; padding: 5rem 2.5rem 4rem; align-items: center; gap: 2rem; }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+    .hero-left { animation: fadeUp .7s ease both; }
+    .hero-right { animation: fadeUp .7s .15s ease both; }
+    .hero-label { font-size: .8125rem; color: var(--muted); font-weight: 500; margin-bottom: 1.5rem; display: flex; align-items: center; gap: .625rem; }
+    .hero-label::before { content:''; display:inline-block; width:1.5rem; height:1px; background:var(--accent); flex-shrink:0; }
+    .hero-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(3.5rem,7.5vw,6.75rem); line-height: .9; letter-spacing: -.025em; margin-bottom: 2rem; }
+    .hero-sub { font-size: 1rem; color: var(--muted); max-width: 40ch; margin-bottom: 2.5rem; line-height: 1.75; }
+    .hero-actions { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+    .hero-right { display: flex; justify-content: center; align-items: center; }
+    .watch-svg { width: min(380px, 90vw); height: min(380px, 90vw); overflow: visible; }
+
+    /* ── STATS BAR ── */
+    .stats-bar { background: var(--text); color: var(--dark-text); display: grid; grid-template-columns: repeat(4,1fr); padding: 2rem 2.5rem; }
+    .stat-item { padding: 0 2.5rem; border-right: 1px solid #222120; }
+    .stat-item:first-child { padding-left: 0; }
+    .stat-item:last-child { border-right: none; }
+    .stat-value { font-family: 'Syne', sans-serif; font-size: 2.25rem; font-weight: 800; color: var(--dark-text); line-height: 1; margin-bottom: .3rem; }
+    .stat-unit { color: var(--accent); font-size: 1.5rem; }
+    .stat-label { font-size: .8125rem; color: #6A6865; }
+
+    /* ── CAROUSEL ── */
+    .carousel-section { padding: 5rem 2.5rem; background: var(--dark-bg); color: var(--dark-text); }
+    .carousel-header { text-align: center; margin-bottom: 3rem; }
+    .carousel-header h2 { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(1.75rem,3vw,2.5rem); margin-bottom: .75rem; }
+    .carousel-header p { font-size: .9375rem; color: #6A6865; }
+    .carousel-wrapper { position: relative; overflow: hidden; max-width: 700px; margin: 0 auto; }
+    .carousel-track { display: flex; transition: transform .5s cubic-bezier(.4,0,.2,1); }
+    .carousel-slide { min-width: 100%; display: flex; flex-direction: column; align-items: center; gap: 1.5rem; padding: 0 1rem; }
+    .carousel-slide svg { width: min(300px, 80vw); height: min(300px, 80vw); }
+    .carousel-caption { font-size: .875rem; color: #6A6865; text-align: center; }
+    .carousel-caption strong { display: block; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; color: var(--dark-text); margin-bottom: .25rem; }
+    .carousel-controls { display: flex; justify-content: center; align-items: center; gap: 1.5rem; margin-top: 2rem; }
+    .carousel-btn { background: none; border: 1px solid #2A2825; color: #6A6865; width: 2.5rem; height: 2.5rem; cursor: pointer; font-size: 1rem; transition: border-color .2s, color .2s; display: flex; align-items: center; justify-content: center; }
+    .carousel-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .carousel-dots { display: flex; gap: .5rem; }
+    .carousel-dot { width: .5rem; height: .5rem; background: #2A2825; border: none; cursor: pointer; transition: background .2s; padding: 0; }
+    .carousel-dot.active { background: var(--accent); width: 1.5rem; }
+
+    /* ── FEATURES ── */
+    .features { padding: 6rem 2.5rem; }
+    .section-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 4rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--surface); }
+    .section-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(1.75rem,3vw,2.5rem); line-height: 1.1; max-width: 18ch; }
+    .section-note { font-size: .875rem; color: var(--muted); max-width: 36ch; text-align: right; line-height: 1.6; }
+    .features-grid { display: grid; grid-template-columns: repeat(3,1fr); }
+    .feature-item { padding: 2.5rem 2.5rem 2.5rem 0; border-right: 1px solid var(--surface); }
+    .feature-item:last-child { border-right: none; padding-right: 0; }
+    .feature-item:not(:first-child) { padding-left: 2.5rem; }
+    .feature-icon { width: 2rem; height: 2rem; margin-bottom: 1.5rem; color: var(--accent); }
+    .feature-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.125rem; margin-bottom: .75rem; }
+    .feature-desc { font-size: .9rem; color: var(--muted); line-height: 1.75; max-width: 30ch; }
+
+    /* ── HIGHLIGHT ── */
+    .highlight { background: var(--dark-bg); color: var(--dark-text); padding: 6rem 2.5rem; display: grid; grid-template-columns: 5fr 4fr; gap: 6rem; align-items: center; }
+    .highlight-label { font-size: .8125rem; color: var(--accent); font-weight: 500; margin-bottom: 1.5rem; display: flex; align-items: center; gap: .625rem; }
+    .highlight-label::before { content:''; display:inline-block; width:1.5rem; height:1px; background:var(--accent); flex-shrink:0; }
+    .highlight-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(2rem,3.5vw,3.25rem); line-height: 1.05; margin-bottom: 1.75rem; }
+    .highlight-body { font-size: .9375rem; color: #888480; line-height: 1.8; max-width: 44ch; }
+    .spec-list { list-style: none; }
+    .spec-list li { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid #1A1918; font-size: .875rem; gap: 1rem; }
+    .spec-list li:first-child { border-top: 1px solid #1A1918; }
+    .spec-key { color: #5A5855; }
+    .spec-val { font-weight: 500; color: var(--dark-text); text-align: right; }
+
+    /* ── ABOUT / COMPANY ── */
+    .about { padding: 6rem 2.5rem; border-top: 1px solid var(--surface); }
+    .about-grid { display: grid; grid-template-columns: 5fr 4fr; gap: 6rem; align-items: start; }
+    .about-label { font-size: .8125rem; color: var(--muted); font-weight: 500; margin-bottom: 1.5rem; display: flex; align-items: center; gap: .625rem; }
+    .about-label::before { content:''; display:inline-block; width:1.5rem; height:1px; background:var(--accent); flex-shrink:0; }
+    .about-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(2rem,3.5vw,3rem); line-height: 1.05; margin-bottom: 1.5rem; }
+    .about-body { font-size: .9375rem; color: var(--muted); line-height: 1.8; max-width: 48ch; margin-bottom: 2rem; }
+    .about-body + .about-body { margin-bottom: 0; }
+    .about-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    .about-stat-val { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; line-height: 1; margin-bottom: .25rem; }
+    .about-stat-label { font-size: .8125rem; color: var(--muted); }
+
+    /* ── LOCATION ── */
+    .location-section { padding: 6rem 2.5rem; border-top: 1px solid var(--surface); }
+    .location-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; }
+    .location-label { font-size: .8125rem; color: var(--muted); font-weight: 500; margin-bottom: 1.5rem; display: flex; align-items: center; gap: .625rem; }
+    .location-label::before { content:''; display:inline-block; width:1.5rem; height:1px; background:var(--accent); flex-shrink:0; }
+    .location-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(2rem,3.5vw,3rem); line-height: 1.05; margin-bottom: 1.25rem; }
+    .location-body { font-size: .9375rem; color: var(--muted); line-height: 1.8; max-width: 42ch; margin-bottom: 2rem; }
+    .location-address { font-size: .9375rem; color: var(--text); font-weight: 500; line-height: 1.8; margin-bottom: 2rem; }
+    .location-map-btn {
+      display: inline-flex; align-items: center; gap: .625rem;
+      background: var(--text); color: var(--bg); padding: .875rem 2rem;
+      font-family: 'DM Sans', sans-serif; font-size: .875rem; font-weight: 500;
+      text-decoration: none; transition: background .2s;
+    }
+    .location-map-btn:hover { background: var(--accent); }
+    .location-map-btn svg { flex-shrink: 0; }
+    .location-card {
+      background: var(--dark-bg); padding: 2.5rem; color: var(--dark-text);
+      display: flex; flex-direction: column; gap: 1.5rem;
+    }
+    .location-card-row { display: flex; gap: 1rem; align-items: flex-start; }
+    .location-card-icon { color: var(--accent); flex-shrink: 0; margin-top: .15rem; }
+    .location-card-label { font-size: .8125rem; color: #5A5855; margin-bottom: .2rem; }
+    .location-card-val { font-size: .9375rem; color: var(--dark-text); font-weight: 500; }
+
+    /* ── CTA ── */
+    .cta-section { padding: 7rem 2.5rem; text-align: center; border-top: 1px solid var(--surface); }
+    .cta-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(2.5rem,5.5vw,5rem); line-height: .95; margin-bottom: 1.5rem; letter-spacing: -.02em; }
+    .cta-price { font-size: 1.125rem; color: var(--muted); margin-bottom: 2.5rem; }
+    .cta-price strong { font-family: 'Syne', sans-serif; color: var(--text); font-size: 1.875rem; font-weight: 700; vertical-align: middle; }
+    .cta-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .cta-note { margin-top: 1.5rem; font-size: .8125rem; color: var(--muted); }
+
+    /* ── FOOTER ── */
+    footer { background: var(--text); color: #5A5855; padding: 1.5rem 2.5rem; display: flex; justify-content: space-between; align-items: center; font-size: .8125rem; gap: 1rem; flex-wrap: wrap; }
+    .footer-links { display: flex; gap: 1.5rem; }
+    footer a { color: #5A5855; text-decoration: none; transition: color .2s; }
+    footer a:hover { color: var(--dark-text); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      nav { padding: 1rem 1.25rem; }
+      .nav-links li:not(:last-child):not(:nth-last-child(2)) { display: none; }
+      .hero { grid-template-columns: 1fr; padding: 3rem 1.25rem; min-height: auto; gap: 3rem; }
+      .hero-right { order: -1; }
+      .stats-bar { grid-template-columns: 1fr 1fr; padding: 1.5rem 1.25rem; gap: 0; }
+      .stat-item { padding: 1rem; border-right: none; border-bottom: 1px solid #222120; }
+      .stat-item:nth-child(odd) { border-right: 1px solid #222120; }
+      .stat-item:nth-last-child(-n+2) { border-bottom: none; }
+      .stat-item:first-child { padding-left: 1rem; }
+      .carousel-section { padding: 3rem 1.25rem; }
+      .features { padding: 3rem 1.25rem; }
+      .section-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+      .section-note { text-align: left; max-width: 48ch; }
+      .features-grid { grid-template-columns: 1fr; }
+      .feature-item { border-right: none !important; border-bottom: 1px solid var(--surface); padding: 1.75rem 0 !important; }
+      .feature-item:last-child { border-bottom: none; }
+      .highlight { grid-template-columns: 1fr; gap: 2.5rem; padding: 4rem 1.25rem; }
+      .about { padding: 3rem 1.25rem; }
+      .about-grid { grid-template-columns: 1fr; gap: 3rem; }
+      .location-section { padding: 3rem 1.25rem; }
+      .location-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+      .cta-section { padding: 4rem 1.25rem; }
+      .cta-actions { flex-direction: column; align-items: center; }
+      footer { padding: 1.25rem; flex-direction: column; text-align: center; }
+      .footer-links { justify-content: center; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .hero-left, .hero-right { animation: none; }
+      .carousel-track { transition: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- SEARCH OVERLAY -->
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-box">
+    <input class="search-input" id="searchInput" type="text" placeholder="Search watches, features, specs…">
+    <button class="search-close" onclick="closeSearch()">✕</button>
+  </div>
+  <div class="search-tags">
+    <button class="search-tag" onclick="doSearch('GPS accuracy')">GPS accuracy</button>
+    <button class="search-tag" onclick="doSearch('Battery life')">Battery life</button>
+    <button class="search-tag" onclick="doSearch('HRV recovery')">HRV recovery</button>
+    <button class="search-tag" onclick="doSearch('STRYDE Gen 4')">STRYDE Gen 4</button>
+    <button class="search-tag" onclick="doSearch('Titanium case')">Titanium case</button>
+    <button class="search-tag" onclick="doSearch('Compare models')">Compare models</button>
+  </div>
+  <p class="search-esc">Press Esc to close</p>
+</div>
+
+<!-- ACCOUNT MODAL -->
+<div class="modal-backdrop" id="accountModal">
+  <div class="modal">
+    <div id="modalForm">
+      <h2 class="modal-title">Create account</h2>
+      <p class="modal-sub">Join the STRYDE community. Early access, training plans, and exclusive drops.</p>
+      <div class="form-group">
+        <label class="form-label">Full name</label>
+        <input class="form-input" type="text" placeholder="Your name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email address</label>
+        <input class="form-input" type="email" placeholder="you@example.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" placeholder="Min. 8 characters">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-primary" onclick="submitAccount()">Create account</button>
+        <button class="modal-close-link" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>
+    <div id="modalSuccess" class="modal-success" style="display:none">
+      <div class="modal-success-icon">✓</div>
+      <h3>You're in.</h3>
+      <p>Welcome to STRYDE. Check your email to verify your account.</p>
+      <br>
+      <button class="btn-primary" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a href="#home" class="nav-brand">
+    <svg class="nav-logo" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- outer ring -->
+      <circle cx="12" cy="12" r="11" stroke="#0F0E0C" stroke-width="1.2"/>
+      <!-- cobalt accent arc (top-right quarter) -->
+      <circle cx="12" cy="12" r="11" fill="none" stroke="#1B5FE8" stroke-width="1.8"
+              stroke-dasharray="17 52" stroke-dashoffset="20" stroke-linecap="round"/>
+      <!-- dark face -->
+      <circle cx="12" cy="12" r="8.5" fill="#0F0E0C"/>
+      <!-- hour hand -->
+      <line x1="12" y1="7.5" x2="12" y2="12" stroke="#EEECE6" stroke-width="1.4" stroke-linecap="round"/>
+      <!-- minute hand (pointing ~2 o'clock) -->
+      <line x1="12" y1="12" x2="15.2" y2="13.8" stroke="#1B5FE8" stroke-width="1.4" stroke-linecap="round"/>
+      <!-- centre dot -->
+      <circle cx="12" cy="12" r="1.1" fill="#1B5FE8"/>
+    </svg>
+    STRYDE
+  </a>
+  <ul class="nav-links">
+    <li><a href="#home" class="nav-link">Home</a></li>
+    <li><a href="#features" class="nav-link">Features</a></li>
+    <li><a href="#gallery" class="nav-link">Gallery</a></li>
+    <li><a href="#about" class="nav-link">About</a></li>
+    <li><a href="https://maps.app.goo.gl/SzcUDkt2DTxwBNfU9" target="_blank" rel="noopener" class="nav-link">Location</a></li>
+    <li>
+      <button class="nav-icon-btn" onclick="openSearch()" title="Search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+      </button>
+    </li>
+    <li><a href="#" class="nav-link nav-signup" onclick="openModal(event)">Create account</a></li>
+  </ul>
+</nav>
+
+<!-- HERO / HOME -->
+<section class="hero" id="home">
+  <div class="hero-left">
+    <div class="hero-label">GPS Running Watch · Gen 4</div>
+    <h1 class="hero-title">Built<br>for<br>distance.</h1>
+    <p class="hero-sub">Every long run ends with data you can trust. STRYDE tracks every split, every effort, every kilometre — then gets out of your way.</p>
+    <div class="hero-actions">
+      <a href="#" class="btn-primary">Get STRYDE</a>
+      <button class="btn-ghost" onclick="openModal(event)">Create account</button>
+    </div>
+  </div>
+  <div class="hero-right">
+    <svg class="watch-svg" id="watchSvg" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="150" cy="150" r="145" fill="none" stroke="#2A2825" stroke-width="1"/>
+      <circle cx="150" cy="150" r="145" fill="none" stroke="#1B5FE8" stroke-width="2"
+              stroke-dasharray="228 683" stroke-dashoffset="285" stroke-linecap="round"/>
+      <circle cx="150" cy="150" r="130" fill="#0F0E0C"/>
+      <rect x="280" y="138" width="12" height="24" rx="3" fill="#1A1918"/>
+      <text x="150" y="140" text-anchor="middle" fill="#EEECE6" font-family="'Syne',sans-serif" font-weight="700" font-size="38" letter-spacing="-1">5:42.1</text>
+      <text x="150" y="160" text-anchor="middle" fill="#4A4845" font-family="'DM Sans',sans-serif" font-size="10.5" font-weight="500">min/km · current pace</text>
+      <line x1="100" y1="173" x2="200" y2="173" stroke="#1E1D1B" stroke-width="1"/>
+      <text x="90"  y="190" text-anchor="middle" fill="#1B5FE8" font-family="'Syne',sans-serif" font-weight="700" font-size="15">14.2</text>
+      <text x="90"  y="203" text-anchor="middle" fill="#3A3835" font-family="'DM Sans',sans-serif" font-size="9">km</text>
+      <text x="150" y="190" text-anchor="middle" fill="#1B5FE8" font-family="'Syne',sans-serif" font-weight="700" font-size="15">148</text>
+      <text x="150" y="203" text-anchor="middle" fill="#3A3835" font-family="'DM Sans',sans-serif" font-size="9">bpm</text>
+      <text x="210" y="190" text-anchor="middle" fill="#1B5FE8" font-family="'Syne',sans-serif" font-weight="700" font-size="15">312</text>
+      <text x="210" y="203" text-anchor="middle" fill="#3A3835" font-family="'DM Sans',sans-serif" font-size="9">kcal</text>
+      <circle cx="150" cy="220" r="3" fill="#1B5FE8" opacity="0.7">
+        <animate attributeName="r" values="2;4;2" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.7;0.3;0.7" dur="1.2s" repeatCount="indefinite"/>
+      </circle>
+    </svg>
+  </div>
+</section>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stat-item"><div class="stat-value">96<span class="stat-unit">h</span></div><div class="stat-label">GPS battery life</div></div>
+  <div class="stat-item"><div class="stat-value">±1.5<span class="stat-unit">m</span></div><div class="stat-label">Position accuracy</div></div>
+  <div class="stat-item"><div class="stat-value">50<span class="stat-unit">m</span></div><div class="stat-label">Water resistance</div></div>
+  <div class="stat-item"><div class="stat-value">47<span class="stat-unit">g</span></div><div class="stat-label">Total weight</div></div>
+</div>
+
+<!-- GALLERY / CAROUSEL -->
+<section class="carousel-section" id="gallery">
+  <div class="carousel-header">
+    <h2>Every angle, engineered.</h2>
+    <p>Titanium case. Sapphire crystal. A form that earns its function.</p>
+  </div>
+  <div class="carousel-wrapper">
+    <div class="carousel-track" id="carouselTrack">
+
+      <!-- Slide 1: Front Face -->
+      <div class="carousel-slide">
+        <svg viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="140" cy="140" r="135" fill="#1A1918" stroke="#2A2825" stroke-width="1.5"/>
+          <circle cx="140" cy="140" r="135" fill="none" stroke="#1B5FE8" stroke-width="2.5" stroke-dasharray="212 636" stroke-dashoffset="265" stroke-linecap="round"/>
+          <circle cx="140" cy="140" r="118" fill="#0F0E0C"/>
+          <rect x="273" y="128" width="11" height="24" rx="3" fill="#242220"/>
+          <text x="140" y="130" text-anchor="middle" fill="#EEECE6" font-family="'Syne',sans-serif" font-weight="700" font-size="36" letter-spacing="-1">5:42</text>
+          <text x="140" y="149" text-anchor="middle" fill="#4A4845" font-family="'DM Sans',sans-serif" font-size="10">min/km · pace</text>
+          <line x1="95" y1="161" x2="185" y2="161" stroke="#1E1D1B" stroke-width="1"/>
+          <text x="88"  y="177" text-anchor="middle" fill="#1B5FE8" font-family="'Syne',sans-serif" font-weight="700" font-size="13">14.2</text>
+          <text x="88"  y="188" text-anchor="middle" fill="#3A3835" font-family="'DM Sans',sans-serif" font-size="8">km</text>
+          <text x="140" y="177" text-anchor="middle" fill="#1B5FE8" font-family="'Syne',sans-serif" font-weight="700" font-size="13">148</text>
+          <text x="140" y="188" text-anchor="middle" fill="#3A3835" font-family="'DM Sans',sans-serif" font-size="8">bpm</text>
+          <text x="192" y="177" text-anchor="middle" fill="#1B5FE8" font-family="'Syne',sans-serif" font-weight="700" font-size="13">312</text>
+          <text x="192" y="188" text-anchor="middle" fill="#3A3835" font-family="'DM Sans',sans-serif" font-size="8">kcal</text>
+          <text x="140" y="56" text-anchor="middle" fill="#2A2825" font-family="'Syne',sans-serif" font-weight="700" font-size="9" letter-spacing="3">STRYDE</text>
+        </svg>
+        <div class="carousel-caption"><strong>Front face</strong>1.4" MIP always-on display — clear in direct sunlight</div>
+      </div>
+
+      <!-- Slide 2: 3/4 angle (perspective illusion with ellipses) -->
+      <div class="carousel-slide">
+        <svg viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+          <!-- Case body 3/4 perspective -->
+          <ellipse cx="148" cy="160" rx="118" ry="70" fill="#1A1918" stroke="#2A2825" stroke-width="1.5"/>
+          <ellipse cx="148" cy="140" rx="118" ry="70" fill="#1A1918" stroke="#2A2825" stroke-width="1.5"/>
+          <!-- Top face -->
+          <ellipse cx="148" cy="140" rx="115" ry="67" fill="#0F0E0C"/>
+          <!-- Accent ring on top -->
+          <ellipse cx="148" cy="140" rx="115" ry="67" fill="none" stroke="#1B5FE8" stroke-width="2" stroke-dasharray="120 380" stroke-dashoffset="60" stroke-linecap="round"/>
+          <ellipse cx="148" cy="140" rx="115" ry="67" fill="none" stroke="#2A2825" stroke-width="1"/>
+          <!-- Display on top face -->
+          <text x="148" y="136" text-anchor="middle" fill="#EEECE6" font-family="'Syne',sans-serif" font-weight="700" font-size="30" letter-spacing="-1">5:42</text>
+          <text x="148" y="151" text-anchor="middle" fill="#4A4845" font-family="'DM Sans',sans-serif" font-size="9">min/km · pace</text>
+          <!-- Crown button on side -->
+          <rect x="263" y="125" width="14" height="22" rx="3" fill="#242220" stroke="#1A1918" stroke-width="1"/>
+          <!-- Band stubs -->
+          <rect x="75"  y="200" width="22" height="35" rx="4" fill="#1A1918"/>
+          <rect x="187" y="200" width="22" height="35" rx="4" fill="#1A1918"/>
+          <rect x="75"  y="90"  width="22" height="35" rx="4" fill="#1A1918"/>
+          <rect x="187" y="90"  width="22" height="35" rx="4" fill="#1A1918"/>
+        </svg>
+        <div class="carousel-caption"><strong>3/4 view</strong>Grade 5 titanium case — 11.8mm thin</div>
+      </div>
+
+      <!-- Slide 3: Side profile -->
+      <div class="carousel-slide">
+        <svg viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+          <!-- Watch profile (side view) -->
+          <!-- Case body -->
+          <rect x="85" y="80" width="110" height="120" rx="14" fill="#1A1918" stroke="#2A2825" stroke-width="1.5"/>
+          <!-- Screen bezel top -->
+          <rect x="91" y="86"  width="98" height="108" rx="10" fill="#0F0E0C"/>
+          <!-- Screen glow edge -->
+          <rect x="91" y="86"  width="98" height="108" rx="10" fill="none" stroke="#1B5FE8" stroke-width="1" opacity="0.4"/>
+          <!-- Crown button right -->
+          <rect x="195" y="115" width="16" height="18" rx="4" fill="#2A2825" stroke="#1A1918" stroke-width="1"/>
+          <rect x="195" y="140" width="16" height="14" rx="4" fill="#2A2825" stroke="#1A1918" stroke-width="1"/>
+          <!-- Display content -->
+          <text x="140" y="130" text-anchor="middle" fill="#EEECE6" font-family="'Syne',sans-serif" font-weight="700" font-size="22">5:42.1</text>
+          <text x="140" y="147" text-anchor="middle" fill="#3A3835" font-family="'DM Sans',sans-serif" font-size="8.5">pace · min/km</text>
+          <line x1="102" y1="157" x2="178" y2="157" stroke="#1E1D1B" stroke-width="1"/>
+          <text x="117" y="172" text-anchor="middle" fill="#1B5FE8" font-family="'Syne',sans-serif" font-weight="700" font-size="12">14.2</text>
+          <text x="140" y="172" text-anchor="middle" fill="#1B5FE8" font-family="'Syne',sans-serif" font-weight="700" font-size="12">148</text>
+          <text x="163" y="172" text-anchor="middle" fill="#1B5FE8" font-family="'Syne',sans-serif" font-weight="700" font-size="12">312</text>
+          <!-- Band top and bottom -->
+          <rect x="104" y="46"  width="72" height="38" rx="10" fill="#151413" stroke="#2A2825" stroke-width="1"/>
+          <rect x="104" y="196" width="72" height="38" rx="10" fill="#151413" stroke="#2A2825" stroke-width="1"/>
+          <!-- Band holes -->
+          <circle cx="127" cy="58"  r="2.5" fill="#0A0908"/>
+          <circle cx="140" cy="58"  r="2.5" fill="#0A0908"/>
+          <circle cx="153" cy="58"  r="2.5" fill="#0A0908"/>
+        </svg>
+        <div class="carousel-caption"><strong>Side profile</strong>Dual function crown — mode select and scroll</div>
+      </div>
+
+      <!-- Slide 4: Caseback -->
+      <div class="carousel-slide">
+        <svg viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+          <!-- Caseback circle -->
+          <circle cx="140" cy="140" r="128" fill="#141312" stroke="#2A2825" stroke-width="1.5"/>
+          <circle cx="140" cy="140" r="118" fill="#0E0D0B" stroke="#1A1918" stroke-width="1"/>
+          <!-- Sensor array -->
+          <circle cx="140" cy="140" r="38" fill="#0A0908" stroke="#1B5FE8" stroke-width="1.5" opacity="0.7"/>
+          <!-- LED dots for optical HR -->
+          <circle cx="128" cy="130" r="5" fill="#1B5FE8" opacity="0.9"/>
+          <circle cx="152" cy="130" r="5" fill="#1B5FE8" opacity="0.9"/>
+          <circle cx="128" cy="150" r="5" fill="#22C55E" opacity="0.8"/>
+          <circle cx="152" cy="150" r="5" fill="#22C55E" opacity="0.8"/>
+          <circle cx="140" cy="140" r="4" fill="#EF4444" opacity="0.8"/>
+          <!-- Sensor label -->
+          <text x="140" y="196" text-anchor="middle" fill="#2A2825" font-family="'DM Sans',sans-serif" font-size="8" letter-spacing="1.5">OPTICAL HEART RATE</text>
+          <!-- Engraving lines -->
+          <circle cx="140" cy="140" r="58" fill="none" stroke="#1A1918" stroke-width="1" stroke-dasharray="4 6"/>
+          <circle cx="140" cy="140" r="76" fill="none" stroke="#1A1918" stroke-width="1" stroke-dasharray="2 8"/>
+          <!-- Text engravings -->
+          <text x="140" y="83" text-anchor="middle" fill="#2A2825" font-family="'Syne',sans-serif" font-weight="700" font-size="9" letter-spacing="3">STRYDE ATHLETICS</text>
+          <text x="140" y="99" text-anchor="middle" fill="#222120" font-family="'DM Sans',sans-serif" font-size="7.5" letter-spacing="1">GRADE 5 TITANIUM · 50M WATER RESIST</text>
+          <!-- Charging port hint -->
+          <rect x="128" y="214" width="24" height="6" rx="3" fill="#1A1918" stroke="#2A2825" stroke-width="1"/>
+        </svg>
+        <div class="carousel-caption"><strong>Sensor caseback</strong>6-LED optical HRV array with SpO2 — medical-grade precision</div>
+      </div>
+
+    </div>
+  </div>
+  <div class="carousel-controls">
+    <button class="carousel-btn" id="prevBtn" onclick="moveCarousel(-1)">&#8592;</button>
+    <div class="carousel-dots" id="carouselDots"></div>
+    <button class="carousel-btn" id="nextBtn" onclick="moveCarousel(1)">&#8594;</button>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="section-header">
+    <h2 class="section-title">What matters on the run</h2>
+    <p class="section-note">Designed around how serious runners actually train, not how they present their data.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-item">
+      <svg class="feature-icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="16" cy="16" r="13"/><path d="M16 8v8l5 3"/></svg>
+      <div class="feature-name">Live Pacing</div>
+      <p class="feature-desc">Real-time pace coaching based on your target finish and current effort. No guesswork mid-race.</p>
+    </div>
+    <div class="feature-item">
+      <svg class="feature-icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,22 10,13 16,17 22,8 28,14"/><polyline points="23,7 28,7 28,12"/></svg>
+      <div class="feature-name">Elevation Mapping</div>
+      <p class="feature-desc">Barometric altimeter with 1-metre precision. STRYDE builds your route profile as you move.</p>
+    </div>
+    <div class="feature-item">
+      <svg class="feature-icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4c0 0-9 10-9 16a9 9 0 0 0 18 0c0-6-9-16-9-16z"/></svg>
+      <div class="feature-name">HRV Recovery Score</div>
+      <p class="feature-desc">Wrist-based HRV measurement each morning tells you when to push and when to rest. Science, not habit.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HIGHLIGHT / SPECS -->
+<section class="highlight">
+  <div>
+    <div class="highlight-label">Battery engineering</div>
+    <h2 class="highlight-title">Four days of GPS.<br>No compromises.</h2>
+    <p class="highlight-body">Most watches make you choose between accuracy and longevity. STRYDE uses a dual-frequency GNSS chip with an adaptive power algorithm that trades precision by terrain — not by percentage. The result: full GPS for 96 hours, regardless of conditions.</p>
+  </div>
+  <div>
+    <ul class="spec-list">
+      <li><span class="spec-key">Chipset</span><span class="spec-val">Sony CXD5610 GNSS</span></li>
+      <li><span class="spec-key">Frequencies</span><span class="spec-val">L1 + L5 dual-band</span></li>
+      <li><span class="spec-key">GPS accuracy</span><span class="spec-val">±1.5 m CEP</span></li>
+      <li><span class="spec-key">GPS battery</span><span class="spec-val">96 hours</span></li>
+      <li><span class="spec-key">Watch battery</span><span class="spec-val">21 days</span></li>
+      <li><span class="spec-key">Charging</span><span class="spec-val">Magnetic USB-C, 90 min</span></li>
+      <li><span class="spec-key">Display</span><span class="spec-val">1.4" MIP, always-on</span></li>
+      <li><span class="spec-key">Case material</span><span class="spec-val">Grade 5 titanium</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ABOUT / COMPANY -->
+<section class="about" id="about">
+  <div class="about-grid">
+    <div>
+      <div class="about-label">Our story</div>
+      <h2 class="about-title">Built by runners,<br>for runners.</h2>
+      <p class="about-body">STRYDE started in 2026 in a small workshop in Kochi, India — two engineers who were tired of watches that quit before the finish line. The first prototype was handed to a group of ultramarathon runners training in the Western Ghats. They never gave it back.</p>
+      <p class="about-body" style="margin-top:1rem;">Today, STRYDE is worn by competitive runners across 40 countries, from 5Ks in Mumbai to 100-mile mountain races in the Alps. Every product decision starts with one question: does this make the run better?</p>
+    </div>
+    <div class="about-stats">
+      <div>
+        <div class="about-stat-val">2026</div>
+        <div class="about-stat-label">Founded, Kochi</div>
+      </div>
+      <div>
+        <div class="about-stat-val">40+</div>
+        <div class="about-stat-label">Countries</div>
+      </div>
+      <div>
+        <div class="about-stat-val">280k</div>
+        <div class="about-stat-label">Active runners</div>
+      </div>
+      <div>
+        <div class="about-stat-val">4</div>
+        <div class="about-stat-label">Generations of STRYDE</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LOCATION -->
+<section class="location-section" id="location">
+  <div class="location-grid">
+    <div>
+      <div class="location-label">Find us</div>
+      <h2 class="location-title">Come visit<br>our store.</h2>
+      <p class="location-body">Drop in to try on every STRYDE model, speak to a run specialist, and get fitted for the right band and configuration for your training style.</p>
+      <div class="location-address">
+        STRYDE Athletics<br>
+        Kochi, Kerala, India
+      </div>
+      <a href="https://maps.app.goo.gl/SzcUDkt2DTxwBNfU9" target="_blank" rel="noopener" class="location-map-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+        Get directions
+      </a>
+    </div>
+    <div class="location-card">
+      <div class="location-card-row">
+        <svg class="location-card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+        </svg>
+        <div>
+          <div class="location-card-label">Store hours</div>
+          <div class="location-card-val">Mon – Sat &nbsp; 10:00 AM – 8:00 PM</div>
+          <div class="location-card-val">Sunday &nbsp; 11:00 AM – 6:00 PM</div>
+        </div>
+      </div>
+      <div class="location-card-row">
+        <svg class="location-card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+        </svg>
+        <div>
+          <div class="location-card-label">Address</div>
+          <div class="location-card-val">Kochi, Kerala, India</div>
+        </div>
+      </div>
+      <div class="location-card-row">
+        <svg class="location-card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.41 2 2 0 0 1 3.6 1.23h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.8a16 16 0 0 0 6.07 6.07l.82-.82a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+        </svg>
+        <div>
+          <div class="location-card-label">Contact</div>
+          <div class="location-card-val">support@stryde.in</div>
+        </div>
+      </div>
+      <a href="https://maps.app.goo.gl/SzcUDkt2DTxwBNfU9" target="_blank" rel="noopener" class="location-map-btn" style="margin-top:.5rem; justify-content:center;">
+        Open in Google Maps
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <h2 class="cta-title">Start your next<br>long run ready.</h2>
+  <p class="cta-price">From <strong>₹22,999</strong></p>
+  <div class="cta-actions">
+    <a href="#" class="btn-primary">Order now</a>
+    <button class="btn-ghost" onclick="openModal(event)">Create free account</button>
+  </div>
+  <p class="cta-note">Free shipping &nbsp;·&nbsp; 30-day returns &nbsp;·&nbsp; 2-year warranty</p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span>© 2026 STRYDE Athletics, Kochi, India</span>
+  <div class="footer-links">
+    <a href="#">Privacy</a>
+    <a href="#">Support</a>
+    <a href="#">Warranty</a>
+    <a href="#">Dealers</a>
+    <a href="https://www.instagram.com/sarvesh_____666" target="_blank" rel="noopener" title="Instagram" style="display:flex;align-items:center;gap:5px;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+        <circle cx="12" cy="12" r="4"/>
+        <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+      </svg>
+      Instagram
+    </a>
+  </div>
+</footer>
+
+<script>
+  // ── Tick marks ──
+  const svg = document.getElementById('watchSvg');
+  const ns = 'http://www.w3.org/2000/svg';
+  for (let i = 0; i < 60; i++) {
+    const major = i % 5 === 0;
+    const angle = (i * 6 - 90) * Math.PI / 180;
+    const outerR = 125, innerR = major ? 111 : 118;
+    const x1 = 150 + outerR * Math.cos(angle), y1 = 150 + outerR * Math.sin(angle);
+    const x2 = 150 + innerR * Math.cos(angle), y2 = 150 + innerR * Math.sin(angle);
+    const line = document.createElementNS(ns, 'line');
+    line.setAttribute('x1', x1.toFixed(2)); line.setAttribute('y1', y1.toFixed(2));
+    line.setAttribute('x2', x2.toFixed(2)); line.setAttribute('y2', y2.toFixed(2));
+    line.setAttribute('stroke', major ? '#3A3835' : '#1E1D1B');
+    line.setAttribute('stroke-width', major ? '2' : '1');
+    line.setAttribute('stroke-linecap', 'round');
+    svg.insertBefore(line, svg.querySelector('text'));
+  }
+
+  // ── Search ──
+  function openSearch() { document.getElementById('searchOverlay').classList.add('open'); document.getElementById('searchInput').focus(); }
+  function closeSearch() { document.getElementById('searchOverlay').classList.remove('open'); }
+  function doSearch(q) { document.getElementById('searchInput').value = q; }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeSearch(); closeModal(); } });
+
+  // ── Account Modal ──
+  function openModal(e) { if(e) e.preventDefault(); document.getElementById('accountModal').classList.add('open'); document.getElementById('modalForm').style.display='block'; document.getElementById('modalSuccess').style.display='none'; }
+  function closeModal() { document.getElementById('accountModal').classList.remove('open'); }
+  function submitAccount() { document.getElementById('modalForm').style.display='none'; document.getElementById('modalSuccess').style.display='block'; }
+  document.getElementById('accountModal').addEventListener('click', function(e) { if(e.target===this) closeModal(); });
+
+  // ── Carousel ──
+  let current = 0;
+  const slides = document.querySelectorAll('.carousel-slide');
+  const track = document.getElementById('carouselTrack');
+  const dotsEl = document.getElementById('carouselDots');
+  const total = slides.length;
+
+  slides.forEach((_, i) => {
+    const dot = document.createElement('button');
+    dot.className = 'carousel-dot' + (i===0 ? ' active' : '');
+    dot.setAttribute('aria-label', 'Slide ' + (i+1));
+    dot.onclick = () => goTo(i);
+    dotsEl.appendChild(dot);
+  });
+
+  function goTo(n) {
+    current = (n + total) % total;
+    track.style.transform = `translateX(-${current * 100}%)`;
+    document.querySelectorAll('.carousel-dot').forEach((d, i) => d.classList.toggle('active', i === current));
+  }
+  function moveCarousel(dir) { goTo(current + dir); }
+
+  // Auto-advance
+  let autoTimer = setInterval(() => moveCarousel(1), 4000);
+  document.getElementById('carouselTrack').addEventListener('mouseenter', () => clearInterval(autoTimer));
+  document.getElementById('carouselTrack').addEventListener('mouseleave', () => { autoTimer = setInterval(() => moveCarousel(1), 4000); });
+
+  // Touch swipe
+  let touchStart = 0;
+  track.addEventListener('touchstart', e => { touchStart = e.touches[0].clientX; }, {passive:true});
+  track.addEventListener('touchend', e => { const diff = touchStart - e.changedTouches[0].clientX; if(Math.abs(diff) > 40) moveCarousel(diff > 0 ? 1 : -1); });
+
+  // ── Active nav on scroll ──
+  const sections = document.querySelectorAll('section[id], div.stats-bar');
+  const navLinks = document.querySelectorAll('.nav-link');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + entry.target.id));
+      }
+    });
+  }, { threshold: 0.4 });
+  document.querySelectorAll('#home,#features,#gallery,#about').forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
